@@ -18,7 +18,7 @@ const HomePage = () => {
         <div className="h-screen bg-base-200">
             <div className="flex items-center justify-center pt-20 px-4">
                 <div className="bg-base-100 rounded-lg shadow-xl w-full h-[calc(100vh-6rem)]">
-                    <div className="flex h-full w-full rounded-lg overflow-hidden">
+                    <div className="flex h-full rounded-lg overflow-hidden">
                         {/* Sidebar should take full width on mobile */}
                         {isMobile ? (
                             !selectedUser ? <Sidebar /> : <ChatContainer />
