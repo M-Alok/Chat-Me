@@ -5,34 +5,39 @@ import { useAuthStore } from './useAuthStore';
 
 export const useChatStore = create((set, get) => ({
     messages: [],
-    users: [],
+    allUsers: [],
+    filteredUsers: [],
     selectedUser: null,
     isUsersLoading: false,
     isMessagesLoading: false,
 
     getUsers: async () => {
-        set({isUsersLoading: true});
+        set({ isUsersLoading: true });
         try {
             const res = await axiosInstance.get('/messages/users');
-            set({users: res.data});
+            set({ allUsers: res.data, filteredUsers: res.data });
         } catch (error) {
             console.log('Error in getUsers: ', error);
-            toast.error(error.response?.data?.message || "Enable to get users");
+            toast.error(error.response?.data?.message || "Unable to get users");
         } finally {
-            set({isUsersLoading: false});
+            set({ isUsersLoading: false });
         }
     },
 
+    setFilteredUsers: (filteredUsers) => {
+        set({ filteredUsers });
+    },
+
     getMessages: async (userId) => {
-        set({isMessagesLoading: true});
+        set({ isMessagesLoading: true });
         try {
             const res = await axiosInstance.get(`/messages/${userId}`);
-            set({messages: res.data});
+            set({ messages: res.data });
         } catch (error) {
             console.log('Error in getMessages: ', error);
-            toast.error(error.response?.data?.message || "Enable to get messages");
+            toast.error(error.response?.data?.message || "Unable to get messages");
         } finally {
-            set({isMessagesLoading: false});
+            set({ isMessagesLoading: false });
         }
     },
 
@@ -40,10 +45,10 @@ export const useChatStore = create((set, get) => ({
         const { selectedUser, messages } = get();
         try {
             const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-            set({messages: [...messages, res.data]});
+            set({ messages: [...messages, res.data] });
         } catch (error) {
             console.log('Error in sendMessage: ', error);
-            toast.error(error.response?.data?.message || "Enable to send message");
+            toast.error(error.response?.data?.message || "Unable to send message");
         }
     },
 
@@ -56,15 +61,16 @@ export const useChatStore = create((set, get) => ({
         socket.on("newMessage", (newMessage) => {
             if (newMessage.senderId !== selectedUser._id) return;
             
-            set({ messages: [...get().messages, newMessage], })
-        })
+            set({ messages: [...get().messages, newMessage] });
+        });
     },
 
     unsubscribeToMessages: () => {
         const socket = useAuthStore.getState().socket;
-
         socket.off("newMessage");
     },
 
-    setSelectedUser: (selectedUser) => {set({ selectedUser })},
-}))
+    setSelectedUser: (selectedUser) => {
+        set({ selectedUser });
+    },
+}));
