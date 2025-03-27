@@ -104,6 +104,35 @@ export const updateProfile = async (req, res) => {
     }
 };
 
+export const updateUserInfo = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const updates = req.body;
+
+        if (!updates || Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: 'No updates provided' });
+        }
+
+        if (updates.email) {
+            const existingUser = await User.findOne({ email: updates.email });
+            if (existingUser && existingUser._id.toString() !== userId.toString()) {
+                return res.status(400).json({ message: 'Email already in use' });
+            }
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            updates,
+            { new: true }
+        );
+
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.log(`Error in updateUserInfo: ${error.message}`);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 export const checkAuth = (req, res) => {
     try {
         res.status(200).json(req.user);
