@@ -14,6 +14,18 @@ const SidebarSkeleton = () => {
           <Users className="w-6 h-6" />
           <span className="font-medium block">Contacts</span>
         </div>
+
+        {/* Search Bar Skeleton */}
+        <div className="mt-3 flex flex-col items-start gap-4">
+          <div className="skeleton h-10 w-full rounded-full" />
+
+          {/* Show Online Skeleton */}
+          <div className="flex items-center gap-2">
+            <div className="skeleton h-4 w-4 rounded" />
+            <div className="skeleton h-4 w-24" />
+            <div className="skeleton h-4 w-10" />
+          </div>
+        </div>
       </div>
 
       {/* Skeleton Contacts */}
@@ -25,7 +37,7 @@ const SidebarSkeleton = () => {
               <div className="skeleton size-12 rounded-full" />
             </div>
 
-            {/* User info skeleton - only visible on larger screens */}
+            {/* User info skeleton*/}
             <div className="block text-left min-w-0 flex-1">
               <div className="skeleton h-4 w-32 mb-2" />
               <div className="skeleton h-3 w-16" />
