@@ -88,7 +88,7 @@ const ProfilePage = () => {
             </div>
             <p className="text-sm text-zinc-400">
               {isUpdatingProfile
-                ? (<span className="flex items-center gap-2"><Loader2 className="size-4 animate-spin" />Uploading</span>)
+                ? (<span className="flex items-center gap-1"><Loader2 className="size-4 animate-spin" />Uploading ...</span>)
                 : "Click the camera icon to update your photo"}
             </p>
           </div>

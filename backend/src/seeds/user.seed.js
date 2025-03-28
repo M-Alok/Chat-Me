@@ -106,10 +106,11 @@ const seedDatabase = async () => {
 
     await User.insertMany(seedUsers);
     console.log("Database seeded successfully");
+    process.exit();
   } catch (error) {
     console.error("Error seeding database:", error);
+    process.exit(1);
   }
 };
 
-// Call the function
 seedDatabase();

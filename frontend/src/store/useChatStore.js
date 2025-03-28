@@ -15,7 +15,8 @@ export const useChatStore = create((set, get) => ({
         set({ isUsersLoading: true });
         try {
             const res = await axiosInstance.get('/messages/users');
-            set({ allUsers: res.data, filteredUsers: res.data });
+            const sortedUsers = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            set({ allUsers: sortedUsers, filteredUsers: sortedUsers });
         } catch (error) {
             console.log('Error in getUsers: ', error);
             toast.error(error.response?.data?.message || "Unable to get users");

@@ -74,14 +74,15 @@ const Sidebar = () => {
 
           <div className="cursor-pointer flex items-center gap-2">
             <input
+              id="onlineOnly"
               type="checkbox"
               checked={showOnlineOnly}
               onChange={(e) => setShowOnlineOnly(e.target.checked)}
               className="checkbox checkbox-sm"
             />
-            <span className="text-sm">Show online only</span>
-            <span className="text-xs text-zinc-500">
-              ({onlineUsers.length} online)
+            <label htmlFor="onlineOnly" className="text-sm">Show online only</label>
+            <span className="text-xs text-zinc-500 cursor-text">
+              ({onlineUsers.length -1} online)
             </span>
           </div>
         </div>

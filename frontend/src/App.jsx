@@ -1,10 +1,9 @@
 import { useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { ToastBar, Toaster } from "react-hot-toast";
 
 import Navbar from "./components/Navbar";
-
 import HomePage from "./pages/HomePage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
@@ -16,18 +15,21 @@ import { useThemeStore } from "./store/useThemeStore";
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const { theme } = useThemeStore();
+  const location = useLocation();
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    if (!['/login', '/signup'].includes(location.pathname)) {
+      checkAuth();
+    }
+  }, [checkAuth, location.pathname]);
 
-  // console.log({authUser});
-
-  if (isCheckingAuth && !authUser) return (
-    <div className="flex justify-center items-center h-screen">
-      <Loader className="size-10 animate-spin" />
-    </div>
-  );
+  if (isCheckingAuth && !authUser && !['/login', '/signup'].includes(location.pathname)) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader className="size-10 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div data-theme={theme}>

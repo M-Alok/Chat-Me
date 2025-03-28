@@ -6,7 +6,7 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 export const getUsersForSidebar = async (req, res) => {
     try {
         const loggrdInUser = req.user._id;
-        const filteredUsers = await User.find({_id: {$ne: loggrdInUser}}).select('-password')
+        const filteredUsers = await User.find({_id: {$ne: loggrdInUser}}).select('-password').sort({createdAt: -1});
 
         res.status(200).json(filteredUsers);
     } catch (error) {
