@@ -121,7 +121,7 @@ const ProfilePage = () => {
                   autoFocus={isEditing.fullName}
                   value={editedData.fullName}
                   onChange={(e) => setEditedData({ ...editedData, fullName: e.target.value })}
-                  className="px-4 py-2.5 bg-base-200 rounded-lg border w-full"
+                  className="profileInput px-4 py-2.5 bg-base-200 rounded-lg border w-full"
                 />
               )}
             </div>
@@ -153,7 +153,7 @@ const ProfilePage = () => {
                   autoFocus={isEditing.email}
                   value={editedData.email}
                   onChange={(e) => setEditedData({ ...editedData, email: e.target.value })}
-                  className="px-4 py-2.5 bg-base-200 rounded-lg border w-full"
+                  className="profileInput px-4 py-2.5 bg-base-200 rounded-lg border w-full"
                 />
               )}
             </div>
