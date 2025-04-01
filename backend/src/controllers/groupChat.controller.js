@@ -3,7 +3,7 @@ import Group from "../models/groupChat.model.js";
 import cloudinary from '../lib/cloudinary.js';
 
 // Get all groups where the logged-in user is a member
-export const getMyGroups = async (req, res) => {
+export const getUserGroups = async (req, res) => {
     try {
         const userId = req.user._id;
 
@@ -11,7 +11,7 @@ export const getMyGroups = async (req, res) => {
 
         res.status(200).json({ groups });
     } catch (error) {
-        console.error("Error in getMyGroups controller:", error);
+        console.error("Error in getUserGroups controller:", error);
         res.status(500).json({ message: "Server error", error });
     }
 };
@@ -31,52 +31,57 @@ export const getAllGroups = async (req, res) => {
 // Create a new group
 export const createGroup = async (req, res) => {
     try {
-      const { name, members, admin, description } = req.body;
-      
-      let profilePicUrl = "";
-      // Handle file upload if exists
-      if (req.file) {
-        const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
-          folder: 'group-profile-pics',
-          resource_type: 'auto'
-        });
-        profilePicUrl = uploadResponse.secure_url;
-      }
+        const { name, members, admin, description, profilePic } = req.body;
 
-      // Handle base64 image if sent directly
-      if (req.body.profilePic && !req.file) {
-        const uploadResponse = await cloudinary.uploader.upload(req.body.profilePic, {
-          folder: 'group-profile-pics',
-          resource_type: 'auto'
-        });
-        profilePicUrl = uploadResponse.secure_url;
-      }
-  
-      const allMembers = [...new Set([admin, ...(Array.isArray(members) ? members : JSON.parse(members))])];
-  
-      const group = new Group({
-        name,
-        description: description || "",
-        members: allMembers,
-        admin,
-        profilePic: profilePicUrl
-      });
-  
-      await group.save();
-  
-      res.status(201).json({
-        message: "Group created successfully",
-        group: {
-          ...group._doc,
-          isGroup: true
+        // Validate required fields
+        if (!name || !name.trim()) {
+            return res.status(400).json({ message: "Group Name is required" });
         }
-      });
+
+        if (!members || members.length < 1) {
+            return res.status(400).json({ message: "Add at least 1 user to the group" });
+        }
+
+        let profilePicUrl = "";
+        if (profilePic) {
+            try {
+                const uploadResponse = await cloudinary.uploader.upload(profilePic, {
+                    folder: "group-profile-pics",
+                    resource_type: "auto",
+                });
+                profilePicUrl = uploadResponse.secure_url;
+            } catch (uploadError) {
+                return res.status(500).json({ message: "Error uploading profile picture" });
+            }
+        }
+
+        // Ensure members array is formatted correctly
+        const allMembers = [...new Set([admin, ...(Array.isArray(members) ? members : JSON.parse(members))])];
+
+        const group = new Group({
+            name,
+            description: description || "",
+            members: allMembers,
+            admin,
+            profilePic: profilePicUrl,
+        });
+
+        await group.save();
+
+        return res.status(201).json({
+            message: "Group created successfully",
+            group: {
+                ...group._doc,
+                isGroup: true,
+            },
+        });
     } catch (error) {
-      console.error("Error in createGroup controller:", error);
-      res.status(500).json({ 
-        message: "Server error", 
-        error: error.message 
-      });
+        console.error("Error in createGroup controller:", error);
+
+        // Prevent multiple responses
+        if (!res.headersSent) {
+            return res.status(500).json({ message: "Server error", error: error.message });
+        }
     }
 };
 

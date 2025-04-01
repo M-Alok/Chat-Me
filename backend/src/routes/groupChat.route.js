@@ -1,10 +1,10 @@
 import express from 'express';
 import { protectRoute } from '../middleware/auth.middleware.js';
-import { addUserToGroup, createGroup, getAllGroups, getMyGroups, removeUserFromGroup, renameGroup, updateGroupProfile } from '../controllers/groupChat.controller.js';
+import { addUserToGroup, createGroup, getAllGroups, getUserGroups, removeUserFromGroup, renameGroup, updateGroupProfile } from '../controllers/groupChat.controller.js';
 
 const router = express.Router();
 
-router.get("/myGroups", protectRoute, getMyGroups);
+router.get("/myGroups", protectRoute, getUserGroups);
 router.get("/allGroups", protectRoute, getAllGroups);
 
 router.post("/createGroup", protectRoute, createGroup);
