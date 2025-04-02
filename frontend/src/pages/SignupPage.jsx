@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
 import { Link } from "react-router-dom";
-import AuthImagePattern from "../components/AuthImagePattern";
 import toast from "react-hot-toast";
 
 const SignupPage = () => {
@@ -33,15 +32,13 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
-      {/* Left side */}
-      <div className="flex flex-col justify-center items-center p- sm:p-12">
-        <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen grid lg:grid-cols-1">
+      <div className="flex flex-col justify-center items-center p-6 sm:p-12">
+        <div className="w-full max-w-md space-y-2 rounded-lg shadow-lg shadow-black backdrop-blur-3xl bg-white/20 px-6 py-8">
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
               <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                {/* <MessageSquare className="size-6 text-primary" /> */}
                 <img src="/logo.png" alt="logo" />
               </div>
               <h1 className="text-2xl font-bold mt-2">Create Account</h1>
@@ -52,7 +49,7 @@ const SignupPage = () => {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleFormSubmit} className="space-y-6">
+          <form onSubmit={handleFormSubmit} className="space-y-4">
             {/* FullName field */}
             <div className="form-control">
               <label className="label">
@@ -154,12 +151,6 @@ const SignupPage = () => {
           </div>
         </div>
       </div>
-      
-      {/* Right side */}
-      <AuthImagePattern
-        title="Join our community"
-        subtitle="Connect with friends, share moments, and stay in touch with your loved ones."
-      />
     </div>
   );
 };
