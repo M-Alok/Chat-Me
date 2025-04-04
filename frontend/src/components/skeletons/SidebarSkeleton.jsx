@@ -6,15 +6,17 @@ const SidebarSkeleton = () => {
 
   return (
     <aside
-      className="h-full w-full md:w-60 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200"
+      className="h-full w-full md:w-80 border-r border-base-300 flex flex-col transition-all duration-200"
     >
       {/* Header */}
-      <div className="border-b border-base-300 w-full p-5">
-        <div className="flex items-center gap-2">
-          <Users className="w-6 h-6" />
-          <span className="font-medium block">Contacts</span>
-        </div>
+      <div className="border-b border-base-300 w-full p-4">
+        <div className="flex justify-between items-center gap-2">
+          <div className="flex items-center gap-2">
+            <Users className="size-6" />
+            <span className="font-medium block">Contacts</span>
+          </div>
 
+        </div>
         {/* Search Bar Skeleton */}
         <div className="mt-3 flex flex-col items-start gap-4">
           <div className="skeleton h-10 w-full rounded-full" />

@@ -4,14 +4,14 @@ import { Image, Send, X } from 'lucide-react';
 import toast from "react-hot-toast";
 
 const MessageInput = () => {
-    const [text, settext] = useState("");
+    const [text, setText] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
     const { sendMessage } = useChatStore();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        if (!file.type.startsWith("image/")) {
+        if (!file?.type?.startsWith("image/")) {
             toast.error('Please select an image file');
             return;
         }
@@ -38,7 +38,7 @@ const MessageInput = () => {
             })
 
             // Clear form
-            settext("");
+            setText("");
             setImagePreview(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
         } catch (error) {
@@ -74,7 +74,7 @@ const MessageInput = () => {
                         type="text"
                         placeholder="Type a message..."
                         value={text}
-                        onChange={(e) => settext(e.target.value)}
+                        onChange={(e) => setText(e.target.value)}
                         className="w-full input input-bordered rounded-lg input-sm sm:input-md"
                     />
 
@@ -89,7 +89,7 @@ const MessageInput = () => {
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className={`hidden sm:flex btn btn-circle rounded-lg bg-transparent hover:bg-gray-600 hover:text-zinc-100 ${imagePreview ? 'text-emerald-500 bg-gray-800' : 'text-zinc-400'}`}
+                        className="btn btn-circle rounded-lg bg-transparent hover:bg-gray-600 hover:text-zinc-100 text-zinc-400"
                     >
                         <Image size={20} />
                     </button>

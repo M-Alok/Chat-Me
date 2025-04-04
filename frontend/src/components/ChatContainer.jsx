@@ -5,19 +5,17 @@ import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime, formatMessageDate } from "../lib/utils";
-import { X } from "lucide-react"; // Close icon
 
 const ChatContainer = () => {
-  const {
-    messages,
-    getMessages,
-    isMessagesLoading,
-    selectedUser,
-    subscribeToMessages,
-    unsubscribeToMessages,
-    setSelectedUser,
-  } = useChatStore();
-  const { authUser } = useAuthStore();
+  const messages = useChatStore((state) => state.messages);
+  const getMessages = useChatStore((state) => state.getMessages);
+  const isMessagesLoading = useChatStore((state) => state.isMessagesLoading);
+  const selectedUser = useChatStore((state) => state.selectedUser);
+  const sendMessage = useChatStore((state) => state.sendMessage);
+  const subscribeToMessages = useChatStore((state) => state.subscribeToMessages);
+  const unsubscribeToMessages = useChatStore((state) => state.unsubscribeToMessages);
+
+  const authUser = useAuthStore((state) => state.authUser);
   const scrollMessagesRef = useRef(null);
   
   useEffect(() => {
@@ -100,7 +98,11 @@ const ChatContainer = () => {
               </div>
             );
           })
-        ) : <p className="flex items-center justify-center h-full py-4"><span className="text-xl font-medium">No messages yet ...</span></p>}
+        ) : (
+          <p className="flex items-center justify-center h-full py-4">
+            <span className="text-xl font-medium">No messages yet...</span>
+          </p>
+        )}
       </div>
       
       <MessageInput />
