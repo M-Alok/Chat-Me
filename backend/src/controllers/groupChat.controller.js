@@ -7,7 +7,7 @@ export const getUserGroups = async (req, res) => {
     try {
         const userId = req.user._id;
 
-        const groups = await Group.find({ members: userId });
+        const groups = await Group.find({ members: userId }).populate("admin", "fullName profilePic").populate("members", "fullName profilePic");
 
         res.status(200).json({ groups });
     } catch (error) {
@@ -105,6 +105,26 @@ export const renameGroup = async (req, res) => {
     }
 };
 
+// Update Group Descreption
+export const updateDescription = async (req, res) => {
+    try {
+        const {groupId, newDescription} = req.body;
+
+        if (!groupId || !newDescription) {
+            return res.status(400).json({ message: "Group ID and new description are required" });
+        }
+
+        const group = await Group.findByIdAndUpdate(groupId, {description: newDescription}, {new: true});
+
+        if (!group) return res.status(404).json({ message: "Group not found" });
+
+        res.status(200).json({ message: "Group description updated successfully", group });
+    } catch (error) {
+        console.log("Error in updateDescription controller:", error);
+        res.status(500).json({ message: "Server error", error });
+    }
+}
+
 // Update Group Profile
 export const updateGroupProfile = async (req, res) => {
     try {
@@ -157,7 +177,9 @@ export const addUserToGroup = async (req, res) => {
         group.members.push(new mongoose.Types.ObjectId(userId));
         await group.save();
 
-        res.status(200).json({ message: "User added to group successfully", group });
+        const populatedGroup = await Group.findById(groupId).populate("members", "fullName profilePic");
+
+        res.status(200).json({ message: "User added to group successfully", group: populatedGroup });
     } catch (error) {
         console.error("Error in addUserToGroup controller:", error);
         res.status(500).json({ message: "Server error", error });
@@ -176,6 +198,10 @@ export const removeUserFromGroup = async (req, res) => {
         const group = await Group.findById(groupId);
         if (!group) return res.status(404).json({ message: "Group not found" });
 
+        if (group.admin.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "Only the admin can remove members from the group" });
+        }
+
         if (!group.members.some(member => member.toString() === userId)) {
             return res.status(400).json({ message: "User is not in the group" });
         }
@@ -186,6 +212,60 @@ export const removeUserFromGroup = async (req, res) => {
         res.status(200).json({ message: "User removed from group successfully", group });
     } catch (error) {
         console.error("Error in removeUserFromGroup controller:", error);
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+// Leave Group
+export const leaveGroup = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { groupId } = req.body;
+
+        if (!groupId) {
+            return res.status(400).json({ message: "Group ID is required" });
+        }
+
+        const group = await Group.findById(groupId);
+        if (!group) return res.status(404).json({ message: "Group not found" });
+
+        // Prevent admin from leaving
+        if (group.admin.toString() === userId.toString()) {
+            return res.status(400).json({ message: "Admin cannot leave the group. You can delete it instead." });
+        }
+
+        group.members = group.members.filter(member => member.toString() !== userId.toString());
+        await group.save();
+
+        res.status(200).json({ message: "You have left the group successfully", group });
+    } catch (error) {
+        console.error("Error in leaveGroup controller:", error);
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+// Delete group
+export const deleteGroup = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { groupId } = req.params;
+
+        if (!groupId) {
+            return res.status(400).json({ message: "Group ID is required" });
+        }
+
+        const group = await Group.findById(groupId);
+        if (!group) return res.status(404).json({ message: "Group not found" });
+
+        if (group.admin.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "Only the group admin can delete this group" });
+        }
+
+        await Group.findByIdAndDelete(groupId);
+
+        res.status(200).json({ message: "Group deleted successfully" });
+    } catch (error) {
+        console.error("Error in deleteGroup controller:", error);
         res.status(500).json({ message: "Server error", error });
     }
 };

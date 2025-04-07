@@ -9,7 +9,9 @@ const io = new Server(server, {
     cors: {
         origin: ["http://localhost:5173"],
     },
-})
+});
+
+app.set('io', io);
 
 export function getReceiverSocketId(userId) {
     return userSocketMap[userId];
@@ -24,8 +26,11 @@ io.on("connection", (socket) => {
     const userId = socket.handshake.query.userId;
     if (userId) userSocketMap[userId] = socket.id;
 
-    // Used to send events to all connected clients
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+    socket.on("joinGroup", (groupId) => {
+        socket.join(groupId);
+    });    
 
     socket.on("disconnect", () => {
         console.log("A user disconnected: ", socket.id);
