@@ -4,7 +4,7 @@ import { Camera, Mail, User, Edit, Check, X, Loader2 } from "lucide-react";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile, updateUserInfo } = useAuthStore();
-  const [selectedImg, setSetselectedImg] = useState(null);
+  const [selectedImg, setSelectedImg] = useState(null);
   const [isEditing, setIsEditing] = useState({ fullName: false, email: false });
   const [editedData, setEditedData] = useState({ fullName: authUser?.fullName, email: authUser?.email });
 
@@ -20,7 +20,7 @@ const ProfilePage = () => {
 
     reader.onload = async () => {
         const base64Image = reader.result;
-        setSetselectedImg(base64Image);
+        setSelectedImg(base64Image);
         await updateProfile({ profilePic: base64Image });
     };
   };
@@ -86,7 +86,7 @@ const ProfilePage = () => {
                 />
               </label>
             </div>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm">
               {isUpdatingProfile
                 ? (<span className="flex items-center gap-1"><Loader2 className="size-4 animate-spin" />Uploading ...</span>)
                 : "Click the camera icon to update your photo"}
@@ -96,7 +96,7 @@ const ProfilePage = () => {
           <div className="space-y-6">
             {/* Full Name Field */}
             <div className="space-y-1.5">
-              <div className="text-sm text-zinc-400 flex justify-between px-3 gap-2">
+              <div className="text-sm flex justify-between px-3 gap-2">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4" />
                   <span>Full Name</span>
@@ -128,7 +128,7 @@ const ProfilePage = () => {
 
             {/* Email Field */}
             <div className="space-y-1.5">
-              <div className="text-sm text-zinc-400 flex justify-between px-3 gap-2">
+              <div className="text-sm flex justify-between px-3 gap-2">
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
                   <span>Email Address</span>

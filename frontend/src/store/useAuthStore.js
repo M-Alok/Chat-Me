@@ -13,6 +13,9 @@ export const useAuthStore = create((set, get) => ({
     isCheckingAuth: true,
     onlineUsers: [],
     socket: null,
+    activeTab: 'private',
+    
+    setActiveTab: (tab) => set({ activeTab: tab }),
 
     checkAuth: async () => {
         set({ isCheckingAuth: true });

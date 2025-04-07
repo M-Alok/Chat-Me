@@ -1,5 +1,7 @@
 import { useRef, useState } from "react"
 import { useChatStore } from "../store/useChatStore";
+import { useGroupStore } from "../store/useGroupStore";
+import { useAuthStore } from "../store/useAuthStore"
 import { Image, Send, X } from 'lucide-react';
 import toast from "react-hot-toast";
 
@@ -7,7 +9,8 @@ const MessageInput = () => {
     const [text, setText] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
-    const { sendMessage } = useChatStore();
+    const { selectedUser, sendMessage } = useChatStore();
+    const { selectedGroup, sendGroupMessage } = useGroupStore();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -31,11 +34,21 @@ const MessageInput = () => {
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!text.trim() && !imagePreview) return;
+        
         try {
-            await sendMessage({
-                text: text.trim(),
-                image: imagePreview,
-            })
+            if (selectedGroup) {
+                await sendGroupMessage({
+                    groupId: selectedGroup._id,
+                    senderId: useAuthStore.getState().authUser?._id,
+                    text: text.trim(),
+                    image: imagePreview,
+                });
+            } else if (selectedUser) {
+                await sendMessage({
+                    text: text.trim(),
+                    image: imagePreview,
+                });
+            }
 
             // Clear form
             setText("");
@@ -46,6 +59,9 @@ const MessageInput = () => {
             toast.error("Failed to send message");
         }
     };
+
+    // Don't render if no chat is selected
+    // if (!selectedUser && !selectedGroup) return null;
 
     return (
         <div className="p-4 w-full">
@@ -75,7 +91,7 @@ const MessageInput = () => {
                         placeholder="Type a message..."
                         value={text}
                         onChange={(e) => setText(e.target.value)}
-                        className="w-full input input-bordered rounded-lg input-sm sm:input-md"
+                        className="w-full input input-bordered rounded-lg input-md"
                     />
 
                     <input
@@ -89,7 +105,7 @@ const MessageInput = () => {
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="btn btn-circle rounded-lg bg-transparent hover:bg-gray-600 hover:text-zinc-100 text-zinc-400"
+                        className={`btn btn-ghost ${imagePreview && "text-green-600"} border-2 border-base-300 rounded`}
                     >
                         <Image size={20} />
                     </button>
@@ -97,13 +113,13 @@ const MessageInput = () => {
                 <button
                     type="submit"
                     disabled={!text.trim() && !imagePreview}
-                    className="btn btn-sm rounded-lg p-1 size-10 bg-orange-400 text-black hover:bg-orange-300"
+                    className="btn btn-primary rounded"
                 >
-                    <Send size={22} />
+                    <Send size={20} />
                 </button>
             </form>
         </div>
     )
 }
 
-export default MessageInput
+export default MessageInput;

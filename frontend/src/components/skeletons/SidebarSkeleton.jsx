@@ -15,8 +15,11 @@ const SidebarSkeleton = () => {
             <Users className="size-6" />
             <span className="font-medium block">Contacts</span>
           </div>
-
+          <div className="skeleton btn btn-sm rounded w-32"></div>
         </div>
+
+        <div className="skeleton tabs tabs-boxed mt-3 h-9 bg-base-300"></div>
+        
         {/* Search Bar Skeleton */}
         <div className="mt-3 flex flex-col items-start gap-4">
           <div className="skeleton h-10 w-full rounded-full" />

@@ -1,14 +1,28 @@
-import { X, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
+import { useGroupStore } from "../store/useGroupStore";
+import UpdateGroup from "./UpdateGroup";
 
 const ChatHeader = () => {
+  // Separate states for user and group
   const { selectedUser, setSelectedUser } = useChatStore();
+  const { selectedGroup, setSelectedGroup } = useGroupStore();
   const { onlineUsers } = useAuthStore();
 
+  // Determine if we're showing a user or group chat
+  const isGroupChat = !!selectedGroup;
+  const currentChat = isGroupChat ? selectedGroup : selectedUser;
+
   const handleCloseChat = () => {
-    setSelectedUser(null);
-  }
+    if (isGroupChat) {
+      setSelectedGroup(null);
+    } else {
+      setSelectedUser(null);
+    }
+  };
+
+  if (!currentChat) return null;
 
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -17,7 +31,7 @@ const ChatHeader = () => {
           {/* Back button */}
           <button
             onClick={handleCloseChat} 
-            className="md:hidden btn btn-sm btn-circle btn-ghost"
+            className="btn btn-sm btn-circle btn-ghost"
           >
             <ArrowLeft />
           </button>
@@ -26,28 +40,32 @@ const ChatHeader = () => {
           <div className="avatar">
             <div className="size-10 rounded-full relative">
               <img
-                src={selectedUser.profilePic || "/avatar.png"}
-                alt={selectedUser.fullName}
+                src={currentChat.profilePic || "/avatar.png"}
+                alt={currentChat.fullName || currentChat.name}
               />
             </div>
+            {!isGroupChat && onlineUsers.includes(currentChat._id) && (
+              <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-900" />
+            )}
           </div>
 
-          {/* User info */}
+          {/* User/Group info */}
           <div>
-            <h3 className="font-medium">{selectedUser.fullName}</h3>
+            <h3 className="font-medium text-lg">{currentChat?.fullName ?? currentChat?.name}</h3>
             <p className="text-sm text-base-content/70">
-              {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
+              {selectedGroup 
+                ? `${selectedGroup.members?.length || 0} members` 
+                : onlineUsers.includes(selectedUser?._id) ? "Online" : "Offline"}
             </p>
           </div>
         </div>
 
         {/* Close button */}
-        <button
-          onClick={handleCloseChat}
-          className="btn btn-sm btn-circle btn-ghost"
-        >
-          <X />
-        </button>
+        {
+          isGroupChat && (
+            <UpdateGroup />
+          )
+        }
       </div>
     </div>
   );

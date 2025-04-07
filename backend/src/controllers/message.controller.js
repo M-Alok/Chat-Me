@@ -51,16 +51,20 @@ export const sendMessage = async (req, res) => {
             reciverId: reciverId,
             text: text,
             image: image,
-        })
+        });
 
-        await newMessage.save()
+        await newMessage.save();
+
+        const populatedMessage = await Message.findById(newMessage._id)
+            .populate({ path: 'senderId', select: 'fullName profilePic' })
+            .populate({ path: 'reciverId', select: 'fullName profilePic' });
 
         const reciverSocketId = getReceiverSocketId(reciverId);
         if (reciverSocketId) {
             io.to(reciverSocketId).emit("newMessage", newMessage);
         }
 
-        res.status(201).json(newMessage);
+        res.status(201).json(populatedMessage);
     } catch (error) {
         console.log(`Error in sendMessage controller: ${error.message}`);
         res.status(500).json({ error: 'Internal server error' });

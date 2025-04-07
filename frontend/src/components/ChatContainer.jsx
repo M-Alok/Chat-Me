@@ -5,6 +5,7 @@ import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime, formatMessageDate } from "../lib/utils";
+import { useGroupStore } from "../store/useGroupStore";
 
 const ChatContainer = () => {
   const messages = useChatStore((state) => state.messages);
@@ -15,22 +16,53 @@ const ChatContainer = () => {
   const subscribeToMessages = useChatStore((state) => state.subscribeToMessages);
   const unsubscribeToMessages = useChatStore((state) => state.unsubscribeToMessages);
 
+  const selectedGroup = useGroupStore((state) => state.selectedGroup);
+  const groupMessages = useGroupStore((state) => state.groupMessages);
+  const fetchGroupMessages = useGroupStore((state) => state.fetchGroupMessages);
+  const isGroupMessagesLoading = useGroupStore((state) => state.isGroupMessagesLoading);
+  const sendGroupMessage = useGroupStore((state) => state.sendGroupMessage);
+  const subscribeToGroupMessages = useGroupStore((state) => state.subscribeToGroupMessages);
+  const unsubscribeToGroupMessages = useGroupStore((state) => state.unsubscribeToGroupMessages);
+
   const authUser = useAuthStore((state) => state.authUser);
+  const socket = useAuthStore((state) => state.socket);
   const scrollMessagesRef = useRef(null);
+
+  const isGroupChat = selectedGroup ? true : false;
+  const currentMessages = isGroupChat ? groupMessages : messages;
   
   useEffect(() => {
-    getMessages(selectedUser._id);
-    subscribeToMessages();
-    return () => unsubscribeToMessages();
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeToMessages]);
-  
+    if (isGroupChat && selectedGroup?._id) {
+        fetchGroupMessages(selectedGroup._id);
+        subscribeToGroupMessages();
+    } else if (!isGroupChat && selectedUser?._id) {
+        getMessages(selectedUser._id);
+        subscribeToMessages();
+    }
+
+    return () => {
+        if (isGroupChat) {
+            unsubscribeToGroupMessages();
+        } else {
+            unsubscribeToMessages();
+        }
+    };
+  }, [selectedUser?._id, selectedGroup?._id, isGroupChat]);
+
   useEffect(() => {
-    if (scrollMessagesRef.current && messages) {
+    if (socket && selectedGroup?._id) {
+        socket.emit("joinGroup", selectedGroup._id);
+    }
+  }, [socket, selectedGroup]);
+
+
+  useEffect(() => {
+    if (scrollMessagesRef.current && currentMessages.length > 0) {
       scrollMessagesRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
-  
-  if (isMessagesLoading) {
+  }, [currentMessages]);
+
+  if ((isMessagesLoading && !isGroupChat) || (isGroupMessagesLoading && isGroupChat)) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
@@ -39,7 +71,7 @@ const ChatContainer = () => {
       </div>
     );
   }
-  
+
   let lastDisplayedDate = null;
 
   return (
@@ -47,11 +79,20 @@ const ChatContainer = () => {
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto space-y-4">
-        {messages.length > 0 ? (
-          messages.map((message, index) => {
+        {currentMessages.length > 0 ? (
+          currentMessages.map((message) => {
             const messageDate = formatMessageDate(message.createdAt);
             const showDate = messageDate !== lastDisplayedDate;
             lastDisplayedDate = messageDate;
+
+            const sender = message.senderId._id === authUser._id 
+              ? authUser 
+              : isGroupChat
+                ? { 
+                  profilePic: message.senderId?.profilePic || "/avatar.png",
+                  fullName: message.senderId?.fullName || "Unknown" 
+                }
+                : selectedUser;
 
             return (
               <div key={message._id}>
@@ -64,21 +105,26 @@ const ChatContainer = () => {
                 )}
 
                 <div
-                  className={`chat ${message.senderId === authUser._id ? 'chat-end' : 'chat-start'}`}
+                  className={`chat ${message.senderId._id === authUser._id ? 'chat-end' : 'chat-start'} px-2`}
                   ref={scrollMessagesRef}
                 >
                   {/* Chat avatar */}
                   <div className="chat-image avatar">
                     <div className="size-10 rounded-full border">
                       <img
-                        src={message.senderId === authUser._id ? authUser.profilePic || "/avatar.png" : selectedUser.profilePic || "/avatar.png"}
+                        src={sender.profilePic || "/avatar.png"}
                         alt="profile pic"
                       />
                     </div>
                   </div>
                   
                   <div className="chat-header mb-1">
-                    <time className="text-xs opacity-50 ml-1">
+                    {isGroupChat && message.senderId._id !== authUser._id && (
+                      <span className="font-medium mr-2 text-sm">
+                        {sender.fullName}
+                      </span>
+                    )}
+                    <time className="text-xs opacity-50">
                       {formatMessageTime(message.createdAt)}
                     </time>
                   </div>

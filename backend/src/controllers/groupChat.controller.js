@@ -68,10 +68,13 @@ export const createGroup = async (req, res) => {
 
         await group.save();
 
+        // Populate the members and admin fields before returning
+        const populatedGroup = await Group.findById(group._id).populate("members", "fullName profilePic").populate("admin", "fullName profilePic");
+
         return res.status(201).json({
             message: "Group created successfully",
             group: {
-                ...group._doc,
+                ...populatedGroup._doc,
                 isGroup: true,
             },
         });
@@ -90,8 +93,12 @@ export const renameGroup = async (req, res) => {
     try {
         const { groupId, newName } = req.body;
 
-        if (!groupId || !newName) {
-            return res.status(400).json({ message: "Group ID and new name are required" });
+        if (!groupId) {
+            return res.status(400).json({ message: "Group ID required" });
+        }
+
+        if (!newName) {
+            return res.status(400).json({ message: "Group name required" });
         }
 
         const group = await Group.findByIdAndUpdate(groupId, { name: newName }, { new: true });
@@ -110,8 +117,8 @@ export const updateDescription = async (req, res) => {
     try {
         const {groupId, newDescription} = req.body;
 
-        if (!groupId || !newDescription) {
-            return res.status(400).json({ message: "Group ID and new description are required" });
+        if (!groupId) {
+            return res.status(400).json({ message: "Group ID required" });
         }
 
         const group = await Group.findByIdAndUpdate(groupId, {description: newDescription}, {new: true});

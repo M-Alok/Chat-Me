@@ -37,6 +37,7 @@ export const useChatStore = create((set, get) => ({
         set({ isMessagesLoading: true });
         try {
             const res = await axiosInstance.get(`/messages/${userId}`);
+            // console.log("Fetched Messages:", res.data);
             set({ messages: res.data });
         } catch (error) {
             console.log('Error in getMessages: ', error);
@@ -59,12 +60,13 @@ export const useChatStore = create((set, get) => ({
 
     subscribeToMessages: () => {
         const { selectedUser } = get();
-        if (!selectedUser) return;
-        
         const socket = useAuthStore.getState().socket;
+        
+        if (!selectedUser) return;
 
         const messageListener = (newMessage) => {
             if (newMessage.senderId !== selectedUser._id) return;
+            // console.log("Private => newMessage & selectedUser: ", newMessage.senderId, selectedUser._id);
             set((state) => ({ messages: [...state.messages, newMessage] }));
         };
     
