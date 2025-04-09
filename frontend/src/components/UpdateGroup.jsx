@@ -303,7 +303,7 @@ const UpdateGroup = () => {
             {selectedGroup.admin._id === authUser._id ? (
               <>
                 <button 
-                  className="btn btn-outline hover:bg-red-600 hover:text-white"
+                  className="btn btn-outline bg-red-600 text-white border-none"
                   onClick={() => document.getElementById('confirm-delete').showModal()}
                 >
                   Delete Group
@@ -322,7 +322,7 @@ const UpdateGroup = () => {
             ) : (
               <>
                 <button 
-                  className="btn btn-outline hover:bg-red-600 hover:text-white"
+                  className="btn btn-outline bg-red-600 text-white border-none"
                   onClick={() => document.getElementById('confirm-leave').showModal()}
                 >
                   Leave Group

@@ -105,7 +105,7 @@ const MessageInput = () => {
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className={`btn btn-ghost ${imagePreview && "text-green-600"} border-2 border-base-300 rounded`}
+                        className={`btn btn-ghost ${imagePreview && "text-green-600"} rounded`}
                     >
                         <Image size={20} />
                     </button>
