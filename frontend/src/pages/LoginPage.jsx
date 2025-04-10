@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,17 @@ const LoginPage = () => {
     const handleFormSubmit = (e) => {
         e.preventDefault();
         login(formData);
+    }
+
+    const handleGuestCredentials = (e) => {
+        e.preventDefault();
+        try {
+            setFormData({ email: "guest@gmail.com", password: "123456" });
+            toast.success("Guest Credentials are set, please Sign in");
+        } catch (error) {
+            console.log("Unable to set guest credentials");
+            toast.error("Unable to set guest credentials");
+        }
     }
 
     return (
@@ -84,20 +96,28 @@ const LoginPage = () => {
                         </div>
                         </div>
 
-                        <button
-                            type="submit"
-                            className="btn btn-primary w-full"
-                            disabled={isLoggingIn}
-                        >
-                        {isLoggingIn ? (
-                            <>
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                            Loading...
-                            </>
-                        ) : (
-                            "Sign in"
-                        )}
-                        </button>
+                        <div>
+                            <button
+                                type="submit"
+                                className="btn btn-primary w-full"
+                                disabled={isLoggingIn}
+                            >
+                            {isLoggingIn ? (
+                                <>
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                                Loading...
+                                </>
+                            ) : (
+                                "Sign in"
+                            )}
+                            </button>
+                            <button
+                                onClick={handleGuestCredentials}
+                                className="btn btn-active w-full mt-2"
+                            >
+                                Get Guest User Credentials
+                            </button>
+                        </div>
                     </form>
 
                     <div className="text-center">
