@@ -14,6 +14,9 @@ export const useAuthStore = create((set, get) => ({
     onlineUsers: [],
     socket: null,
     activeTab: 'private',
+    typingUsers: [],
+
+    setTypingUsers: (users) => set({ typingUsers: users }),
     
     setActiveTab: (tab) => set({ activeTab: tab }),
 
@@ -117,6 +120,19 @@ export const useAuthStore = create((set, get) => ({
         socket.on("getOnlineUsers", (userIds) => {
             set({ onlineUsers: userIds });
         })
+
+        socket.on("typing", ({ senderId }) => {
+            const current = get().typingUsers;
+            if (!current.includes(senderId)) {
+                set({ typingUsers: [...current, senderId] });
+            }
+        });
+        
+        socket.on("stopTyping", ({ senderId }) => {
+            set({
+                typingUsers: get().typingUsers.filter(id => id !== senderId)
+            });
+        });        
     },
 
     disconnectSocket: () => {

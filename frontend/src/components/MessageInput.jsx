@@ -4,6 +4,8 @@ import { useGroupStore } from "../store/useGroupStore";
 import { useAuthStore } from "../store/useAuthStore"
 import { Image, Send, X } from 'lucide-react';
 import toast from "react-hot-toast";
+import Lottie from "react-lottie";
+import typingAnimation from "../constants/typing.json";
 
 const MessageInput = () => {
     const [text, setText] = useState("");
@@ -11,6 +13,30 @@ const MessageInput = () => {
     const fileInputRef = useRef(null);
     const { selectedUser, sendMessage } = useChatStore();
     const { selectedGroup, sendGroupMessage } = useGroupStore();
+    
+    let typingTimeout;
+
+    const handleTyping = () => {
+        const socket = useAuthStore.getState().socket;
+        const authUser = useAuthStore.getState().authUser;
+        
+        if (!socket || !authUser) return;
+
+        if (selectedGroup) {
+            socket.emit("typing", { groupId: selectedGroup._id });
+        } else if (selectedUser) {
+            socket.emit("typing", { receiverId: selectedUser._id });
+        }
+
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            if (selectedGroup) {
+                socket.emit("stopTyping", { groupId: selectedGroup._id });
+            } else if (selectedUser) {
+                socket.emit("stopTyping", { receiverId: selectedUser._id });
+            }
+        }, 3000);
+    };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -50,7 +76,6 @@ const MessageInput = () => {
                 });
             }
 
-            // Clear form
             setText("");
             setImagePreview(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -60,11 +85,30 @@ const MessageInput = () => {
         }
     };
 
-    // Don't render if no chat is selected
-    // if (!selectedUser && !selectedGroup) return null;
-
     return (
-        <div className="p-4 w-full">
+        <div className="p-2 w-full">
+            {selectedUser && useAuthStore.getState().typingUsers.includes(selectedUser._id) && (
+                <div className="inline-flex w-fit">
+                    <Lottie
+                        options={{
+                            loop: true,
+                            autoplay: true,
+                            animationData: typingAnimation,
+                            rendererSettings: {
+                                preserveAspectRatio: "xMidYMid slice",
+                            },
+                        }}
+                        height={40}
+                        width={70}
+                        style={{
+                            display: "inline-block",
+                            padding: "0px",
+                            margin: "0px",
+                        }}
+                    />
+                </div>
+            )}
+
             {imagePreview && (
                 <div className="mb-3 flex items-center gap-2">
                     <div className="relative">
@@ -90,7 +134,10 @@ const MessageInput = () => {
                         type="text"
                         placeholder="Type a message..."
                         value={text}
-                        onChange={(e) => setText(e.target.value)}
+                        onChange={(e) => {
+                            setText(e.target.value)
+                            handleTyping();
+                        }}
                         className="w-full input input-bordered rounded-lg input-md"
                     />
 
