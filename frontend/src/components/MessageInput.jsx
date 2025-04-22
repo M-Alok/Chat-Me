@@ -13,13 +13,12 @@ const MessageInput = () => {
     const fileInputRef = useRef(null);
     const { selectedUser, sendMessage } = useChatStore();
     const { selectedGroup, sendGroupMessage } = useGroupStore();
-    
+    const socket = useAuthStore.getState().socket;
+    const authUser = useAuthStore.getState().authUser;
+
     let typingTimeout;
 
     const handleTyping = () => {
-        const socket = useAuthStore.getState().socket;
-        const authUser = useAuthStore.getState().authUser;
-        
         if (!socket || !authUser) return;
 
         if (selectedGroup) {
@@ -79,6 +78,7 @@ const MessageInput = () => {
             setText("");
             setImagePreview(null);
             if (fileInputRef.current) fileInputRef.current.value = "";
+            socket.emit("stopTyping", { receiverId: selectedUser?._id, groupId: selectedGroup?._id });
         } catch (error) {
             console.log("Failed to send message: ", error);
             toast.error("Failed to send message");
@@ -88,6 +88,28 @@ const MessageInput = () => {
     return (
         <div className="p-2 w-full">
             {selectedUser && useAuthStore.getState().typingUsers.includes(selectedUser._id) && (
+                <div className="inline-flex w-fit">
+                    <Lottie
+                        options={{
+                            loop: true,
+                            autoplay: true,
+                            animationData: typingAnimation,
+                            rendererSettings: {
+                                preserveAspectRatio: "xMidYMid slice",
+                            },
+                        }}
+                        height={40}
+                        width={70}
+                        style={{
+                            display: "inline-block",
+                            padding: "0px",
+                            margin: "0px",
+                        }}
+                    />
+                </div>
+            )}
+
+            {selectedGroup && useAuthStore.getState().typingUsers.length > 0 && (
                 <div className="inline-flex w-fit">
                     <Lottie
                         options={{
